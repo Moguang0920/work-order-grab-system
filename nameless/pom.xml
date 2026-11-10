@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.1</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>com.opsorder</groupId>
+    <artifactId>nameless</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>nameless</name>
+    <description>设备运维工单系统</description>
+
+    <properties>
+        <java.version>17</java.version>
+        <mybatis-plus.version>3.5.17</mybatis-plus.version>
+        <!-- 显式锁定 Lombok 版本：保证 javac 的注解处理器和运行时是同一个 jar -->
+        <lombok.version>1.18.46</lombok.version>
+    </properties>
+
+    <dependencies>
+        <!-- MyBatis-Plus Starter 针对 Spring Boot 4.x -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+
+        <!-- MyBatis-Plus 分页等插件必需的 jsqlparser 支持 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+ 
+        <!-- Sa-Token 整合 RedisTemplate：登录态存 Redis，重启不丢会话 -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-redis-template</artifactId>
+            <version>1.46.0</version>
+        </dependency>
+
+        <!-- RocketMQ —— 暂时停用。
+             原因：rocketmq-spring-boot 2.2.3 属于 Spring Boot 2 时代，仅通过 META-INF/spring.factories
+             注册 RocketMQAutoConfiguration，而 Spring Boot 3+ 不再读取该文件，故在 Boot 4.1.1 下
+             自动配置完全失效（rocketmq.* 配置无效、RocketMQTemplate 无法注入）。
+             后续启用需替换为提供 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports 的新版本。
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+            <version>2.2.3</version>
+        </dependency>
+        -->
+
+        <!-- Redis 连接池（lettuce 连接池） -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Web MVC 支持 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+        <!-- AOP 切面支持（Spring Boot 4 已移除 spring-boot-starter-aop，改用 spring-boot-starter-aspectj） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
+        </dependency>
+
+        <!-- MySQL 驱动，匹配 MySQL 9.5 -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>9.5.0</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Swagger/OpenAPI 接口文档 -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+
+   <dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-crypto</artifactId>
+</dependency>
+
+        <!-- Redis 数据访问：提供 RedisTemplate，Sa-Token 的 Redis DAO 依赖它 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+<!-- Sa-Token 权限认证，在线文档：https://sa-token.com -->
+<dependency>
+	<groupId>cn.dev33</groupId>
+	<artifactId>sa-token-spring-boot4-starter</artifactId>
+	<version>1.46.0</version>
+</dependency>
+
+        <!-- 测试依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>4.1.1</version>
+            </plugin>
+
+            <!-- 编译插件：强制 javac + 显式声明 Lombok 作为注解处理器。
+                 这样构建一定走 javac，不会落到 Eclipse 的 ECJ 上
+                 （ECJ 下 Lombok 会生成 Code length 0 的无效字节码）。
+                 compilerId 默认就是 javac，这里显式写出来是为了防止
+                 IDE 或 CI 环境把它改成 eclipse。 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerId>javac</compilerId>
+                    <parameters>true</parameters>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

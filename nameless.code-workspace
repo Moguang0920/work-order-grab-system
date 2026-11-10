@@ -1,0 +1,28 @@
+{
+    // 用法：双击本文件打开 CodeBuddy / VSCode，Java 扩展就能正确识别 Maven 工程
+    // （原来 VSCode 打开的是外层 nameless 目录，而 pom.xml 在 nameless/nameless 子目录里，
+    //  导致 Language Support for Java 找不到 pom.xml，无法导入项目、没有 Run/Debug 按钮）
+    "folders": [
+        {
+            "path": "nameless"
+        }
+    ],
+    "settings": {
+        "java.configuration.updateBuildConfiguration": "interactive",
+
+        // 禁止 VSCode 的 Java 语言服务器自动编译。
+        // 它使用 Eclipse 编译器 (ECJ) 处理 Lombok 时会生成无效字节码
+        // (Code length 0)，运行时表现为 ClassFormatError: Invalid method Code length 0。
+        // 编译交给 Maven/javac，VSCode 只保留代码提示。
+        "java.autobuild.enabled": false,
+
+        // 清除外层环境注入的 SERVER__PORT / SERVER__HOST。
+        // Spring Boot 4 的 relaxed binding 会把 SERVER__PORT 映射成 server.port，
+        // 且其优先级高于 application.properties；若其值为 0，Tomcat 会起在随机端口，
+        // 表现就是"控制台显示 Started，但 localhost:8080 打不开"。设为 null 表示从终端环境中移除。
+        "terminal.integrated.env.windows": {
+            "SERVER__PORT": null,
+            "SERVER__HOST": null
+        }
+    }
+}

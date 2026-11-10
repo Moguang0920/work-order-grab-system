@@ -1,0 +1,74 @@
+name: nameless
+
+# 默认只起 MySQL 和 Redis（开发时应用在本地 IDE/命令行跑，改代码不用重建镜像）
+# 想连应用一起起：docker compose --profile full up -d
+#
+# 注意：如果本机已经装了 MySQL/Redis 并占用 3306/6379，先把本机服务停掉，
+# 或者把下面的 ports 改成 "3307:3306" / "6380:6379"，同时改应用的连接配置。
+
+services:
+
+  mysql:
+    image: mysql:9.5
+    container_name: nameless-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "123123"
+      MYSQL_DATABASE: nameless_db
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - nameless-mysql-data:/var/lib/mysql
+      # 首次启动（数据卷为空）时自动执行：建表 + 初始化角色权限和演示数据
+      - ./docker/mysql-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p123123"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7.4
+    container_name: nameless-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - nameless-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    profiles: ["full"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nameless-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # 容器内用服务名互相访问，不能用 localhost
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/nameless_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true"
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "123123"
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
+      TZ: Asia/Shanghai
+    ports:
+      - "8080:8080"
+
+volumes:
+  nameless-mysql-data:
+  nameless-redis-data:
