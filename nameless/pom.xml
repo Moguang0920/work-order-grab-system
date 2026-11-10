@@ -11,9 +11,9 @@
     </parent>
 
     <groupId>com.opsorder</groupId>
-    <artifactId>nameless</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>nameless</name>
+    <artifactId>work-order-system</artifactId>
+    <version>1.0.0</version>
+    <name>work-order-system</name>
     <description>设备运维工单系统</description>
 
     <properties>

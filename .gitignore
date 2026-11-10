@@ -32,3 +32,23 @@ desktop.ini
 
 # ===== Office 临时锁文件 =====
 ~$*
+
+# ===== 个人面试准备材料（不上传，仅本地）=====
+八股答案-*.md
+八股答案详解.docx
+面试八股清单.md
+面试准备手册.docx
+面试题清单.docx
+面试问答-抢单项目.md
+简历与自我介绍.md
+项目全链路拆解-上.md
+项目全链路拆解-下.md
+项目细节全解.docx
+项目建议-日常实习版.md
+appendix_satoken_rbac.md
+gen_bagu_docx.py
+gen_handbook_docx.py
+gen_interview_docx.py
+gen_project_detail_docx.py
+新建 DOC 文档.doc
+软著申报材料/
